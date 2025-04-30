@@ -1,0 +1,169 @@
+﻿<UserControl x:Class="SRLIMS.Views.SelectDataSource"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="850">
+
+    <UserControl.Resources>
+        <!-- Efecto de sombra solo vertical -->
+        <DropShadowEffect x:Key="VerticalShadow" BlurRadius="8" ShadowDepth="4" Opacity="0.1" Direction="270" Color="#333333"/>
+
+        <!-- Estilo para texto -->
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="Foreground" Value="#333333"/>
+        </Style>
+
+        <!-- RadioButton estilo minimalista -->
+        <Style TargetType="RadioButton">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Margin" Value="0,0,30,0"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="Transparent">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="20" Height="20" Margin="0,0,8,0">
+                                    <Ellipse x:Name="OuterRing" Stroke="Black" StrokeThickness="1.5" Fill="White"/>
+                                    <Ellipse x:Name="InnerCircle" Margin="5" Fill="Black" Visibility="Collapsed"/>
+                                </Grid>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botón estilo negro -->
+        <Style x:Key="BlackButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#333333"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Campo de entrada -->
+        <Style x:Key="CleanInputField" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <!-- Cabecera -->
+            <RowDefinition Height="Auto"/>
+            <!-- Opciones -->
+            <RowDefinition Height="*"/>
+            <!-- Contenido -->
+        </Grid.RowDefinitions>
+
+        <!-- Cabecera negra -->
+        <Border Grid.Row="0" Background="Black">
+            <TextBlock Text="SELECT DATA SOURCE" 
+                      Foreground="White"
+                      FontSize="24"
+                      FontWeight="Bold"
+                      VerticalAlignment="Center"
+                      HorizontalAlignment="Center"
+                      FontFamily="Century Gothic"/>
+        </Border>
+
+        <!-- Panel de opciones - ancho completo -->
+        <Border Grid.Row="1" Background="White" Padding="20,15" 
+                Effect="{StaticResource VerticalShadow}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <RadioButton x:Name="rbExcel" 
+                            Content="LOAD FROM EXCEL" 
+                            GroupName="DataSource" 
+                            FontWeight="SemiBold"
+                            Checked="DataSourceOption_Checked"/>
+
+                <RadioButton x:Name="rbDatabase" 
+                            Content="LOAD FROM DATABASE" 
+                            GroupName="DataSource"
+                            FontWeight="SemiBold"
+                            Checked="DataSourceOption_Checked"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Panel de contenido - ancho completo -->
+        <Border Grid.Row="2" Background="White" Padding="40,30">
+            <Grid>
+                <!-- Panel para Excel -->
+                <StackPanel x:Name="pnlExcel" Visibility="Collapsed" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="SELECT EXCEL FILE" 
+                              FontSize="16" FontWeight="Bold" Margin="0,0,0,20"
+                              HorizontalAlignment="Center"/>
+
+                    <DockPanel Width="500" Margin="0,0,0,20">
+                        <Button Content="BROWSE" 
+                                Click="BrowseExcel_Click" 
+                                Style="{StaticResource BlackButton}"
+                                DockPanel.Dock="Right" Margin="20,0,0,0"/>
+                        <TextBox x:Name="txtExcelPath" 
+                                Style="{StaticResource CleanInputField}"
+                                IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <Button Content="QUERY DATA" 
+                            Click="QueryExcel_Click"
+                            Style="{StaticResource BlackButton}"
+                            HorizontalAlignment="Right"/>
+
+                    <TextBlock Text="Supported formats: .xlsx, .xls" 
+                              FontSize="12" Foreground="#666666" Margin="0,15,0,0"
+                              HorizontalAlignment="Center" FontStyle="Italic"/>
+                </StackPanel>
+
+                <!-- Panel para Base de Datos -->
+                <StackPanel x:Name="pnlDatabase" Visibility="Collapsed" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="DATABASE CONNECTION" 
+                              FontSize="16" FontWeight="Bold" Margin="0,0,0,20"
+                              HorizontalAlignment="Center"/>
+
+                    <StackPanel Width="500" Margin="0,0,0,20">
+                        <TextBlock Text="CONNECTION ID" Margin="0,0,0,8"
+                                  FontWeight="SemiBold" FontSize="13"/>
+                        <TextBox x:Name="txtDatabaseID" 
+                                Style="{StaticResource CleanInputField}"/>
+                    </StackPanel>
+
+                    <Button Content="QUERY DATA" 
+                            Click="QueryDatabase_Click"
+                            Style="{StaticResource BlackButton}"
+                            HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
