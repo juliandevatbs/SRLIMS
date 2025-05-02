@@ -26,7 +26,7 @@ namespace SRLIMS.Services.Excel
         /// <param name="sheetIndex">Índice de la hoja (0-based, por defecto la primera hoja)</param>
         /// <returns>Lista de listas, donde cada lista interna representa una fila con los valores de las columnas seleccionadas</returns>
         // Versión corregida del método ReadRowsAsLists
-        public List<List<object>> ReadRowsAsLists(string filePath, int startRow, List<int> columns, int? maxRows = null, string sheetName = null)
+        public List<List<object>> ReadRowsAsLists(string sheetName, string filePath, int startRow, List<int> columns, int? maxRows = null)
         {
             // Validación EXTRA reforzada
             if (string.IsNullOrWhiteSpace(filePath))
@@ -43,34 +43,28 @@ namespace SRLIMS.Services.Excel
 
             try
             {
-                // CONFIGURACIÓN CLAVE (añade esto)
 
                 using (var package = new ExcelPackage(new FileInfo(filePath)))
                 {
-                    // Validación EXTRA de hojas
                     if (package.Workbook?.Worksheets == null || !package.Workbook.Worksheets.Any())
                         return result;
 
-                    // Obtener hoja con manejo seguro
-                    ExcelWorksheet worksheet = !string.IsNullOrWhiteSpace(sheetName)
+                    ExcelWorksheet? worksheet = !string.IsNullOrWhiteSpace(sheetName)
                         ? package.Workbook.Worksheets.FirstOrDefault(ws =>
                             ws.Name.Equals(sheetName, StringComparison.OrdinalIgnoreCase))
-                        : package.Workbook.Worksheets["Chain of Custody 1"]; // Acceso directo a la primera hoja
+                        : package.Workbook.Worksheets[sheetName]; // Acceso a la hoja de cadena de custodia
 
                     if (worksheet == null)
                         throw new Exception($"Hoja no encontrada: {sheetName ?? "primera hoja"}");
 
-                    // Verificar dimensiones
                     if (worksheet.Dimension == null)
                         return result;
 
-                    // Rango seguro
                     startRow = Math.Max(1, startRow);
                     int endRow = maxRows.HasValue
                         ? Math.Min(worksheet.Dimension.End.Row, startRow + maxRows.Value - 1)
                         : worksheet.Dimension.End.Row;
 
-                    // Lectura a prueba de errores
                     for (int row = startRow; row <= endRow; row++)
                     {
                         var rowData = new List<object>();
@@ -98,7 +92,6 @@ namespace SRLIMS.Services.Excel
             }
             catch (Exception ex)
             {
-                // Error detallado
                 throw new Exception($"Fallo crítico al leer Excel. Detalles técnicos:\n" +
                                   $"• Archivo: {Path.GetFileName(filePath)}\n" +
                                   $"• Error: {ex.GetType().Name}\n" +
@@ -168,7 +161,6 @@ namespace SRLIMS.Services.Excel
                     }
                 }
 
-                // Guardar cambios si se solicita
                 if (saveChanges)
                 {
                     package.Save();
@@ -187,7 +179,6 @@ namespace SRLIMS.Services.Excel
             {
                 var worksheet = package.Workbook.Worksheets[0];
 
-                // Obtener todas las celdas combinadas
                 foreach (var mergedCell in worksheet.MergedCells)
                 {
                     var mergedRange = new ExcelAddress(mergedCell);
@@ -197,5 +188,7 @@ namespace SRLIMS.Services.Excel
 
             return mergedCells;
         }
+
+
     }
 }

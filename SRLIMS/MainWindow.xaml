@@ -1,7 +1,8 @@
 ﻿<Window x:Class="SRLIMS.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SRLIMS" Height="600" Width="800"
+        Title="SRLIMS" 
+        WindowState="Maximized"
         x:Name="MainWindowInstance">
     <Grid>
         <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden"/>

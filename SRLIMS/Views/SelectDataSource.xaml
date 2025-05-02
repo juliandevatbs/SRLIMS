@@ -97,7 +97,7 @@
         </Border>
 
         <!-- Panel de opciones - ancho completo -->
-        <Border Grid.Row="1" Background="White" Padding="20,15" 
+        <Border Grid.Row="1" Background="Gray" Padding="20,15" 
                 Effect="{StaticResource VerticalShadow}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <RadioButton x:Name="rbExcel" 
@@ -115,7 +115,7 @@
         </Border>
 
         <!-- Panel de contenido - ancho completo -->
-        <Border Grid.Row="2" Background="White" Padding="40,30">
+        <Border Grid.Row="2" Background="Gray" Padding="40,30">
             <Grid>
                 <!-- Panel para Excel -->
                 <StackPanel x:Name="pnlExcel" Visibility="Collapsed" 

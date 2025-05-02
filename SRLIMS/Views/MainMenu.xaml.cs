@@ -15,23 +15,16 @@ using System.Windows.Shapes;
 namespace SRLIMS.Views
 {
     /// <summary>
-    /// Lógica de interacción para Window1.xaml
+    /// Lógica de interacción para MainMenu.xaml
     /// </summary>
-    public partial class Home : UserControl
+    public partial class MainMenu : UserControl
     {
-        public Home()
+        public MainMenu()
         {
             InitializeComponent();
-
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-
-        private void OpenMainMenu_Click(object sender, RoutedEventArgs e)
+        private void OpenSelectDataSourceFrame(object sender, RoutedEventArgs e)
         {
 
             try
@@ -40,7 +33,8 @@ namespace SRLIMS.Views
                 {
                     if (Application.Current.MainWindow is MainWindow mainWindow && mainWindow.MainFrame != null)
                     {
-                        var newView = new MainMenu();
+
+                        var newView = new SelectDataSource();
 
                         if (mainWindow.MainFrame.Content is IDisposable oldView)
                         {
@@ -51,22 +45,19 @@ namespace SRLIMS.Views
                     }
                 }), System.Windows.Threading.DispatcherPriority.Normal);
             }
-
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 MessageBox.Show($"Error when change the window{ex.Message}");
+
             }
+
+
 
             var mainWindow = Application.Current.MainWindow as MainWindow;
 
-            mainWindow.MainFrame.Content = new MainMenu();
+            mainWindow.MainFrame.Content = new SelectDataSource();
 
-                }
-
-        
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
 
         }
     }

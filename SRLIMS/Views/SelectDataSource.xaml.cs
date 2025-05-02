@@ -3,16 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Win32;
 using SRLIMS.Services.Excel;
 
@@ -21,9 +14,8 @@ namespace SRLIMS.Views
     /// <summary>
     /// Lógica de interacción para SelectDataSource.xaml
     /// </summary>
-    public partial class SelectDataSource : UserControl
+    public partial class SelectDataSource : UserControl, IDisposable
     {
-
         private readonly ExcelReader _excelReader;
 
         public SelectDataSource()
@@ -35,7 +27,6 @@ namespace SRLIMS.Views
         private void DataSourceOption_Checked(object sender, RoutedEventArgs e)
         {
             pnlExcel.Visibility = rbExcel.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
-
             pnlDatabase.Visibility = rbDatabase.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -43,12 +34,9 @@ namespace SRLIMS.Views
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-
                 Filter = "Excel files (*.xlsx;*xls)|*.xlsx;*.xls| All files (*.*)|*.*",
-
                 Title = "Select excel file"
             };
-
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -56,93 +44,96 @@ namespace SRLIMS.Views
             }
         }
 
+        private (List<List<object>> custodyData, List<List<List<string>>> matrixData) ReadAllExcelData()
+        {
+            // Datos de Chain of Custody
+            var custodyData = _excelReader.ReadRowsAsLists(
+                filePath: txtExcelPath.Text,
+                startRow: 15,
+                columns: new List<int> { 2, 3, 4, 5, 6, 7, 25 },
+                maxRows: 20,
+                sheetName: "Chain of Custody 1"
+            );
+
+            // Datos de las matrices
+            List<List<List<string>>> matrixData = new List<List<List<string>>>();
+            var matrixSheets = new List<string> {
+        "Ammonia (7664417)",
+        "Alkalinity (471341)",
+        "Chlorides (16887006)"
+    };
+
+            foreach (var sheet in matrixSheets)
+            {
+                var excelData = _excelReader.ReadRowsAsLists(
+                    filePath: txtExcelPath.Text,
+                    startRow: 21,
+                    columns: new List<int> { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 },
+                    maxRows: 25,
+                    sheetName: sheet
+                );
+
+                List<List<string>> convertedSheet = excelData?
+                    .Select(row => row.Select(cell => cell?.ToString() ?? "").ToList())
+                    .ToList() ?? new List<List<string>>();
+
+                matrixData.Add(convertedSheet);
+            }
+
+            return (custodyData, matrixData);
+        }
+
+
+
         private void QueryExcel_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Diagnóstico 1 - Verificar archivo seleccionado
-                if (string.IsNullOrWhiteSpace(txtExcelPath.Text))
+                // Validaciones iniciales
+                if (string.IsNullOrWhiteSpace(txtExcelPath.Text) || !File.Exists(txtExcelPath.Text))
                 {
-                    MessageBox.Show("No se ha seleccionado ningún archivo", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Archivo no válido o no seleccionado", "Error",
+                                  MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                string filePath = txtExcelPath.Text;
+                // Leer todos los datos
+                var (custodyData, matrixData) = ReadAllExcelData();
 
-                // Diagnóstico 2 - Verificar existencia del archivo
-                if (!File.Exists(filePath))
+                // Validar que hay datos
+                if ((custodyData == null || custodyData.Count == 0) &&
+                    (matrixData == null || matrixData.All(m => m.Count == 0)))
                 {
-                    MessageBox.Show($"El archivo no existe:\n{filePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("No se encontraron datos en el archivo", "Información",
+                                  MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
-                // Diagnóstico 3 - Verificar extensión
-                var validExtensions = new[] { ".xls", ".xlsx", ".xlsm" };
-                if (!validExtensions.Contains(System.IO.Path.GetExtension(filePath).ToLower()))
-                {
-                    MessageBox.Show("Extensión de archivo no válida", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+                // Crear la vista con ambos datasets
+                var excelDataView = new ExcelDataView(custodyData, matrixData);
 
-                // Configuración conservadora
-                var columnsToRead = new List<int> { 1, 2, 3 }; // Solo 3 columnas para prueba
-                List<List<object>> excelData = null;
-
-                // Bloque de diagnóstico
-                try
+                // Asignar al MainFrame
+                if (Application.Current.MainWindow is MainWindow mainWindow && mainWindow.MainFrame != null)
                 {
-                    Debug.WriteLine("=== INICIO DIAGNÓSTICO ===");
-                    Debug.WriteLine($"Leyendo archivo: {filePath}");
-                    Debug.WriteLine($"Tamaño: {new FileInfo(filePath).Length} bytes");
+                    if (mainWindow.MainFrame.Content is IDisposable oldView)
+                        oldView.Dispose();
 
-                    excelData = _excelReader.ReadRowsAsLists(
-                        filePath: filePath,
-                        startRow: 1,
-                        columns: columnsToRead,
-                        maxRows: 10); // Solo 10 filas para prueba
-
-                    Debug.WriteLine($"Filas leídas: {excelData?.Count ?? 0}");
-                    Debug.WriteLine("=== FIN DIAGNÓSTICO ===");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"ERROR CRÍTICO: {ex.ToString()}");
-                    MessageBox.Show($"Error al leer el archivo:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                // Validación de datos
-                if (excelData == null || excelData.Count == 0)
-                {
-                    MessageBox.Show("El archivo no contiene datos o está vacío", "Información", MessageBoxButton.OK, MessageBoxImage.Information);
-                    return;
-                }
-
-                // Mostrar datos
-                try
-                {
-                    var dataView = new ExcelDataView(excelData);
-                    dataView.Owner = Window.GetWindow(this);
-                    dataView.Show();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al mostrar los datos:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    mainWindow.MainFrame.Content = excelDataView;
                 }
             }
-            catch (Exception globalEx)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Error inesperado:\n{globalEx.Message}", "Error crítico", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error: {ex.Message}", "Error",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
 
 
+
+
         private void QueryDatabase_Click(object sender, RoutedEventArgs e)
         {
-
-            
-
             if (string.IsNullOrEmpty(txtDatabaseID.Text))
             {
                 MessageBox.Show("Please enter a Lab Reporting Batch ID");
@@ -150,7 +141,13 @@ namespace SRLIMS.Views
             }
 
             MessageBox.Show($"Samples with: {txtDatabaseID.Text}");
+        }
 
+
+
+        public void Dispose()
+        {
+            
         }
     }
 }

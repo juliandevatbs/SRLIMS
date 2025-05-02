@@ -16,6 +16,7 @@ namespace SRLIMS
     {
 
         public Frame mainFrameControl => this.MainFrame;
+
         private ExcelReader _excelReader;
 
     
@@ -24,9 +25,12 @@ namespace SRLIMS
           
 
             InitializeComponent();
+            this.WindowStyle = WindowStyle.None;
             MainFrame.Content = new Views.Home();
 
         }
+
+
 
     }
 }
