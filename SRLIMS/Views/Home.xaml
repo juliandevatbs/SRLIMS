@@ -3,24 +3,49 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:local="clr-namespace:SRLIMS.Views"
              mc:Ignorable="d"
-             d:DesignHeight="708.511" d:DesignWidth="1009.043">
+             d:DesignHeight="720" d:DesignWidth="1280"
+             Background="#F5F7FA">
+
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="0*"/>
-        </Grid.ColumnDefinitions>
+        <!-- Contenido principal centrado -->
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
 
-        <Grid Grid.Column="0" Background="Black">
-            <!-- Logo centrado en la parte superior -->
-            <Image Width="221" Height="272" VerticalAlignment="Top" HorizontalAlignment="Center" Source="/LOGO SRL FINAL.png" Stretch="Fill" RenderTransformOrigin="0.254,0.525" Margin="0,10,0,0"/>
-            <!-- Título SRLIMS (normal, sin rotación) -->
-            <TextBlock Text="SRLIMS" FontFamily="Century Gothic" FontSize="48" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
-            <TextBlock HorizontalAlignment="Center" Margin="0,426,0,0" TextWrapping="Wrap" Text="Southern Research Laboratories Information Management System" VerticalAlignment="Top" Foreground="White" TextAlignment="Center" FontFamily="Century Gothic" FontSize="22" Height="66" Width="477"/>
-            <Button Content="Start" HorizontalAlignment="Center" Margin="0,552,0,0" VerticalAlignment="Top" Height="44" Width="221" Background="White" Click="OpenMainMenu_Click" FontSize="24" FontFamily="Century Gothic"/>
-            <!-- Aquí puedes agregar más elementos al panel lateral como menús, etc. -->
-        </Grid>
+            <!-- Logo -->
+            <Image Source="/LOGO SRL FINAL.png" 
+                   Stretch="Uniform" 
+                   Width="180"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,30"/>
 
+            <!-- Título principal -->
+            <TextBlock Text="SRLIMS" 
+                      Style="{StaticResource MainTitle}"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,10"/>
+
+            <!-- Subtítulo -->
+            <TextBlock Text="Southern Research Laboratories Information Management System"
+                      Style="{StaticResource Subtitle}"
+                      TextAlignment="Center"
+                      Margin="0,0,0,40"/>
+
+            <!-- Botón de inicio -->
+            <Button Content="INICIAR SISTEMA"
+                   Style="{StaticResource ProfessionalButton}"
+                   HorizontalAlignment="Center"
+                   Width="220"
+                   Height="45"
+                   FontSize="16"
+                   Click="OpenMainMenu_Click"/>
+        </StackPanel>
+
+        <!-- Pie de página -->
+        <TextBlock Text="v2.0.0 © 2023 Southern Research Laboratories" 
+                  VerticalAlignment="Bottom"
+                  HorizontalAlignment="Center"
+                  Margin="0,0,0,20"
+                  Foreground="#7A8BA6"
+                  FontSize="12"/>
     </Grid>
 </UserControl>

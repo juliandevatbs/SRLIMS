@@ -1,29 +1,87 @@
 ﻿<UserControl x:Class="SRLIMS.Views.MainMenu"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SRLIMS.Views"
-        mc:Ignorable="d" d:DesignHeight="506.963" d:DesignWidth="917.089"
->
-    <Grid Background="Black">
-        <TextBox x:Name="ReportsTitle" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Reports" VerticalAlignment="Top" Width="188" Background="{x:Null}" FontSize="36" FontFamily="Century Gothic" FontWeight="Bold" TextAlignment="Center" Foreground="White" BorderBrush="{x:Null}"/>
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="720" d:DesignWidth="1280"
+             Background="#F5F7FA">
 
+    <Grid>
+        <!-- Encabezado con logo y título -->
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,30,0,0">
+            <Image Source="/LOGO SRL FINAL.png" 
+                   Stretch="Uniform" 
+                   Width="120"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,20"/>
 
-        <Grid Background="Black" Margin="0,61,0,398">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="33*">
+            <TextBlock Text="REPORTS MENU" 
+                      Style="{StaticResource MainTitle}"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,40"/>
+        </StackPanel>
 
-                </ColumnDefinition>
-                <ColumnDefinition Width="33*"></ColumnDefinition>
-                <ColumnDefinition Width="33*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Button Content="Many wells per page" HorizontalAlignment="Center" VerticalAlignment="Center" Height="38" Width="306" Background="White" FontFamily="Century Gothic" FontSize="22" Click="OpenSelectDataSourceFrame"/>
-            <Button Content="Single well per page" HorizontalAlignment="Center" VerticalAlignment="Center" Height="38" Width="306" Background="White" FontFamily="Century Gothic" FontSize="22" Grid.Column="1" Click="OpenSelectDataSourceFrame"/>
-            <Button Content="Single well per page wide method" HorizontalAlignment="Center" VerticalAlignment="Center" Height="38" Width="306" Background="White" FontFamily="Century Gothic" FontSize="22" Grid.Column="2" Click="OpenSelectDataSourceFrame"/>
+        <!-- Opciones del menú principal -->
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" Width="900">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
+            <!-- Fila de botones -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,30">
+                <Button Content="Many Wells per Page"
+                        Style="{StaticResource ProfessionalButton}"
+                        Width="280"
+                        Height="60"
+                        FontSize="18"
+                        Margin="10"
+                        Click="OpenSelectDataSourceFrame"/>
+
+                <Button Content="Single Well per Page"
+                        Style="{StaticResource ProfessionalButton}"
+                        Width="280"
+                        Height="60"
+                        FontSize="18"
+                        Margin="10"
+                        Click="OpenSelectDataSourceFrame"/>
+
+                <Button Content="Single Well Wide Method"
+                        Style="{StaticResource ProfessionalButton}"
+                        Width="280"
+                        Height="60"
+                        FontSize="18"
+                        Margin="10"
+                        Click="OpenSelectDataSourceFrame"/>
+            </StackPanel>
+
+            <!-- Otras opciones podrían ir aquí -->
+            <Button Grid.Row="1" Content="Data Analysis Tools"
+                    Style="{StaticResource ProfessionalButton}"
+                    Width="400"
+                    Height="50"
+                    FontSize="16"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,20"/>
+
+            <Button Grid.Row="2" Content="Configuration"
+                    Style="{StaticResource ProfessionalButton}"
+                    Width="400"
+                    Height="50"
+                    FontSize="16"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,20"/>
         </Grid>
+
+        <!-- Pie de página consistente con Home -->
+        <TextBlock Text="v2.0.0 © 2023 Southern Research Laboratories" 
+                  VerticalAlignment="Bottom"
+                  HorizontalAlignment="Center"
+                  Margin="0,0,0,20"
+                  Foreground="#7A8BA6"
+                  FontSize="12"/>
     </Grid>
-
-
 </UserControl>

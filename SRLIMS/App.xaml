@@ -4,6 +4,154 @@
              xmlns:local="clr-namespace:SRLIMS"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+            <!-- Estilos base -->
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="Century Gothic"/>
+                <Setter Property="Foreground" Value="#2E3A4D"/>
+            </Style>
+
+            <!-- Botón Profesional -->
+            <Style TargetType="Button" x:Key="ProfessionalButton">
+                <Setter Property="FontFamily" Value="Century Gothic"/>
+                <Setter Property="Background" Value="#005B96"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Padding" Value="15,8"/>
+                <Setter Property="Margin" Value="10"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                            CornerRadius="3">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Título Principal -->
+            <Style TargetType="TextBlock" x:Key="MainTitle">
+                <Setter Property="FontFamily" Value="Century Gothic"/>
+                <Setter Property="FontSize" Value="36"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="#005B96"/>
+            </Style>
+
+            <!-- Subtítulo -->
+            <Style TargetType="TextBlock" x:Key="Subtitle">
+                <Setter Property="FontFamily" Value="Century Gothic"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Foreground" Value="#5C6B82"/>
+            </Style>
+
+            <!-- Panel de Contenido -->
+            <Style TargetType="Border" x:Key="ContentPanel">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="#E0E3E8"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1" Color="#000000"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        <!-- RadioButton profesional -->
+        <Style x:Key="ProfessionalRadioButton" TargetType="RadioButton">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#2E3A4D"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="Transparent">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid Width="18" Height="18" Margin="0,0,8,0">
+                                    <Ellipse x:Name="OuterRing" Stroke="#005B96" StrokeThickness="1.5" Fill="White"/>
+                                    <Ellipse x:Name="InnerCircle" Margin="4" Fill="#005B96" Visibility="Collapsed"/>
+                                </Grid>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="OuterRing" Property="Stroke" Value="#0078D7"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterRing" Property="Stroke" Value="#0078D7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Campo de entrada profesional -->
+        <Style x:Key="ProfessionalInputField" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E0E3E8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2E3A4D"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#0078D7"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#005B96"/>
+                    <Setter Property="BorderThickness" Value="1.5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Botón secundario -->
+        <Style x:Key="ProfessionalSecondaryButton" TargetType="Button" BasedOn="{StaticResource ProfessionalButton}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#005B96"/>
+            <Setter Property="BorderBrush" Value="#005B96"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Título de sección -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#005B96"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+
+        <!-- Etiqueta para campos de entrada -->
+        <Style x:Key="InputLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#5C6B82"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Texto de ayuda/hint -->
+        <Style x:Key="HintText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Century Gothic"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#7A8BA6"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
     </Application.Resources>
+
 </Application>
