@@ -156,7 +156,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Corregido: TextBlock con estilo SectionTitleStyle que ya incluye Margin -->
-                <TextBlock Grid.Row="0" Text="CHAIN DATA" Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Grid.Row="0" Style="{StaticResource SectionTitleStyle}"><Run Language="es-es" Text="Samples"/></TextBlock>
 
                 <DataGrid Grid.Row="1" 
                      x:Name="CustodyDataGrid" 
@@ -189,7 +189,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Corregido: TextBlock con estilo SectionTitleStyle que ya incluye Margin -->
-                <TextBlock Grid.Row="0" Text="MATRIX DATA" Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Grid.Row="0" Style="{StaticResource SectionTitleStyle}"><Run Language="es-es" Text="Sample Tests"/></TextBlock>
 
                 <DataGrid Grid.Row="1" 
                          x:Name="MatrixDataGrid" 

@@ -8,32 +8,32 @@ using System.Linq;
 
 namespace SRLIMS.Views
 {
-    public partial class ExcelDataView : UserControl, IDisposable
+    public partial class DatabaseDataView : UserControl, IDisposable
     {
         private List<List<List<string>>> _originalMatrixData;
         private DataTable _fullMatrixTable;
         private DataTable _custodyDataTable;
 
-        public ExcelDataView(List<List<object>> excelData, List<List<List<string>>> matrixData)
+        public DatabaseDataView(List<List<object>> databaseData, List<List<List<string>>> matrixData)
         {
             InitializeComponent();
             _originalMatrixData = matrixData;
-            LoadData(excelData, matrixData);
+            LoadData(databaseData, matrixData);
         }
 
-        private void LoadData(List<List<object>> excelData, List<List<List<string>>> matrixData)
+        private void LoadData(List<List<object>> databaseData, List<List<List<string>>> matrixData)
         {
             try
             {
-                if (excelData == null && matrixData == null)
+                if (databaseData == null && matrixData == null)
                 {
-                    MessageBox.Show("No data received");
+                    MessageBox.Show("No se recibieron datos de la base de datos");
                     return;
                 }
 
-                if (excelData != null && excelData.Count > 0)
+                if (databaseData != null && databaseData.Count > 0)
                 {
-                    _custodyDataTable = CreateCustodyTable(excelData);
+                    _custodyDataTable = CreateCustodyTable(databaseData);
                     SetupCustodyDataGrid(_custodyDataTable);
                 }
 
@@ -49,22 +49,23 @@ namespace SRLIMS.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading data into table: {ex.Message}");
+                MessageBox.Show($"Error al cargar datos en la tabla: {ex.Message}", "Error",
+                              MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private DataTable CreateCustodyTable(List<List<object>> excelData)
+        private DataTable CreateCustodyTable(List<List<object>> databaseData)
         {
             var dataTable = new DataTable();
 
             // Headers para Chain of Custody
             string[] customHeaders = {
-                "ItemID", "Sample ID", "Date", "Time", "Collect Method",
+                "ItemID", "Sample Identification", "Sampled", "Grab or Composite",
                 "Matrix", "Containers", "LabReportingBatchID"
             };
 
             // Crear columnas
-            for (int i = 0; i < excelData[0].Count; i++)
+            for (int i = 0; i < databaseData[0].Count; i++)
             {
                 string columnName = i < customHeaders.Length ? customHeaders[i] : $"Column {i + 1}";
                 dataTable.Columns.Add(columnName);
@@ -74,7 +75,7 @@ namespace SRLIMS.Views
             dataTable.Columns.Add("Include", typeof(bool));
 
             // Llenar datos
-            foreach (var row in excelData)
+            foreach (var row in databaseData)
             {
                 var newRow = dataTable.NewRow();
                 for (int i = 0; i < row.Count; i++)
@@ -132,19 +133,6 @@ namespace SRLIMS.Views
                             {
                                 newRow[i] = dateValue;
                             }
-                            else if (double.TryParse(row[i], out double numericDate))
-                            {
-                                // Si es un número, podría ser una fecha de Excel (días desde 1900-01-01)
-                                try
-                                {
-                                    newRow[i] = DateTime.FromOADate(numericDate);
-                                }
-                                catch
-                                {
-                                    // Si falla la conversión, mantener el valor original como string
-                                    newRow[i] = row[i];
-                                }
-                            }
                             else
                             {
                                 newRow[i] = row[i];
@@ -168,7 +156,7 @@ namespace SRLIMS.Views
             CustodyDataGrid.Columns.Clear();
 
             // Definir anchos de columna predeterminados para la tabla de custodia
-            int[] columnWidths = { 150, 150, 150, 150, 150, 150, 150 };
+            int[] columnWidths = { 80, 150, 100, 120, 100, 100, 150 };
 
             for (int i = 0; i < dataTable.Columns.Count - 1; i++)
             {
@@ -212,7 +200,7 @@ namespace SRLIMS.Views
             MatrixDataGrid.Columns.Clear();
 
             // Definir anchos de columna predeterminados para la tabla de matriz
-            int[] columnWidths = { 150, 150, 150, 150, 200, 200, 120, 120, 150, 150 };
+            int[] columnWidths = { 120, 150, 120, 120, 150, 150, 100, 100, 150, 150 };
 
             for (int i = 0; i < matrixTable.Columns.Count; i++)
             {
@@ -261,11 +249,11 @@ namespace SRLIMS.Views
         public void GetSelectedChainData_Click(object sender, RoutedEventArgs e)
         {
             var selectedData = GetSelectedChainData();
-            updateMatrixTable();
+            UpdateMatrixTable();
         }
 
         // Este método actualiza la tabla de matriz - ahora solo se usa para el botón
-        public void updateMatrixTable()
+        public void UpdateMatrixTable()
         {
             // Verificar si hay una fila seleccionada en la tabla de custodia
             if (CustodyDataGrid.SelectedItem is DataRowView selectedRow)

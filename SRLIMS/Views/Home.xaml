@@ -5,11 +5,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
-             Background="#F5F7FA">
+             Background="#F5F7FA"
+             >
 
     <Grid>
         <!-- Contenido principal centrado -->
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="620">
 
             <!-- Logo -->
             <Image Source="/LOGO SRL FINAL.png" 
@@ -28,7 +29,7 @@
             <TextBlock Text="Southern Research Laboratories Information Management System"
                       Style="{StaticResource Subtitle}"
                       TextAlignment="Center"
-                      Margin="0,0,0,40"/>
+                      Margin="0,0,0,40" Height="30" Width="506"/>
 
             <!-- Botón de inicio -->
             <Button Content="INICIAR SISTEMA"
@@ -41,7 +42,7 @@
         </StackPanel>
 
         <!-- Pie de página -->
-        <TextBlock Text="v2.0.0 © 2023 Southern Research Laboratories" 
+        <TextBlock Text="v2.0.0 © 2025 Southern Research Laboratories" 
                   VerticalAlignment="Bottom"
                   HorizontalAlignment="Center"
                   Margin="0,0,0,20"
