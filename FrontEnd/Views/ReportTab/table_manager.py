@@ -10,10 +10,29 @@ class TableManager:
     def __init__(self, parent):
 
         self.parent = parent
+        
         self.tables = {}
+        
         self.select_all_vars = {}
-
-
+        
+        self.CHECK_ON = '☑'
+        
+        self.CHECK_OFF = '☐'
+        
+        self.TAG_COLUMNS = {
+            
+            'TagMB',
+            'tagLcs',
+            'TagLCSD',
+            'tagMs',
+            'TagLabDup',
+            'TagSurr',
+            'TagParentSample'
+            
+           
+          
+        }
+        
 
     def set_initial_data(self, data_to_insert: dict | list[dict], table_name):
 
@@ -171,29 +190,50 @@ class TableManager:
             return selected_data
 
     def handle_checkbox_click(self, event, table_name):
-            """Handle clicks on checkbox column"""
-            rowid = event.widget.identify_row(event.y)
-            column = event.widget.identify_column(event.x)
+        
+        table = self.tables[table_name]
 
-            if not rowid or column != '#1':
-                return None
+        rowid = event.widget.identify_row(event.y)
+        
+        column = event.widget.identify_column(event.x)
 
-            table = self.tables[table_name]
-            current_values = table.item(rowid, 'values')
+        if not rowid or not column:
+            
+            return None
 
-            if not current_values:
-                return None
+        col_index = int(column.replace('#', '')) - 1
+        
+        col_name = table['columns'][col_index]
 
-            new_values = list(current_values)
-            lab_sample_id = current_values[3]
+        current_values = list(table.item(rowid, 'values'))
 
-            if new_values[0] == '☐':
-                new_values[0] = '☑'
-                action = "SELECTED"
-            else:
-                new_values[0] = '☐'
-                action = "DESELECTED"
+        if col_index == 0:
+            
+            current_values[0] = (
+                
+                self.CHECK_ON if current_values[0] == self.CHECK_OFF else self.CHECK_OFF
+                
+            )
+            table.item(rowid, values=current_values)
+            
+            return current_values[3], "INCLUDE"
 
-            table.item(rowid, values=new_values)
-            return lab_sample_id, action
+        if col_name in self.TAG_COLUMNS:
+            
+            current_values[col_index] = (
+                
+                self.CHECK_ON if current_values[col_index] == self.CHECK_OFF else self.CHECK_OFF
+            )
+            
+            table.item(rowid, values=current_values)
+
+            return {
+                "SampleTestsID": current_values[1],
+                
+                "column": col_name,
+                
+                "value": 1 if current_values[col_index] == self.CHECK_ON else 0
+            }
+
+        return None
 

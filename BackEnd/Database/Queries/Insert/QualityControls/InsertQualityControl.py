@@ -30,7 +30,6 @@ class InsertQualityControl:
                     Temperature,
                     ShippingBatchID,
                     PercentMositure,
-                    sample_matrix_code,
                     LabSampleID
                 FROM Samples
                 WHERE LabSampleID = ?

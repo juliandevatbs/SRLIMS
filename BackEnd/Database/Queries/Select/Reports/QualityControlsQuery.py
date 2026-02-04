@@ -12,12 +12,15 @@ class QualityControlsQuery:
             SELECT
                 s.ClientSampleID,
                 s.LabSampleID,
-                s.DateCollected,
+                COALESCE(s.DateCollected, t.DatePrepared) AS DateCollected,
+                t.DatePrepared,
+                s.DateAnalyzed,
                 s.Sampler,
                 s.MatrixID,
-
                 t.AnalyteName,
                 t.Result,
+                t.QCSpikeAdded,
+                t.LabQualifiers,
                 t.ResultUnits,
                 t.Dilution,
                 t.DetectionLimit,
@@ -25,12 +28,20 @@ class QualityControlsQuery:
                 t.LabAnalysisRefMethodID,
                 t.Analyst,
                 t.MethodBatchID,
-                t.Notes
-                FROM Sample_Tests t
-                JOIN Samples s ON s.LabSampleID = t.LabSampleID
-				AND s.LabReportingBatchID = t.LabReportingBatchID
-				AND s.QCSample = 1
-                WHERE t.LabReportingBatchID = ?
+                t.Notes,
+                t.RelativePercentDifference,
+                t.PercentRecovery,
+                t.Limits as src,
+                CASE 
+                    WHEN t.Low_Limit IS NOT NULL AND t.High_Limit IS NOT NULL
+                    THEN CAST(t.Low_Limit AS VARCHAR(10)) + '-' + CAST(t.High_Limit AS VARCHAR(10))
+                    ELSE NULL
+                END AS Limites
+            FROM Sample_Tests t
+            JOIN Samples s ON s.LabSampleID = t.LabSampleID
+                AND s.LabReportingBatchID = t.LabReportingBatchID
+                AND s.QCSample = 1
+            WHERE t.LabReportingBatchID = ?
 
             """
 

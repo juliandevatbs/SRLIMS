@@ -115,7 +115,7 @@ class InsertSampleTestsFromGroup:
                     test_data.get('LCS_Limit_Low'),                # LCS_Limit_Low
                     test_data.get('LCS_LimitUpper'),               # LCS_LimitUpper
                     test_data.get('TagMb', 0),                     # TagMb
-                    test_data.get('TagLcs', 0),                    # tagLcs (nota: minúscula en Sample_Tests)
+                    test_data.get('tagLcs', 0),                    # tagLcs (nota: minúscula en Sample_Tests)
                     test_data.get('TagLcsd', 0),                   # TagLCSD (nota: mayúsculas en Sample_Tests)
                     test_data.get('TagMs', 0),                     # tagMs (nota: minúscula en Sample_Tests)
                     test_data.get('TagLabDup', 0),                 # TagLabDup

@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime, timedelta
 
+from BackEnd.Processes.Email.email_async import send_login_email_async
+
 
 class NewLoginDialog:
     
@@ -381,19 +383,28 @@ class NewLoginDialog:
     
     def _on_create(self):
         project = self.project_combo.get().strip()
-        
         if not project:
             messagebox.showwarning("Missing Data", "Please enter a project name", parent=self.dialog)
             return
         
         date_received = self.date_received_entry.get().strip()
         time_received = self.time_received.get().strip()
-        datetime_received = f"{date_received} {time_received}"
-        
         date_due = self.date_due_entry.get().strip()
         time_due = self.time_due.get().strip()
+        
+        if not date_received or not time_received:
+            messagebox.showwarning("Missing Data", "Please enter date and time received", parent=self.dialog)
+            return
+        
+        if not date_due or not time_due:
+            messagebox.showwarning("Missing Data", "Please enter due date and time", parent=self.dialog)
+            return
+        
+        datetime_received = f"{date_received} {time_received}"
         datetime_due = f"{date_due} {time_due}"
-            
+        
+        print(f"LabReceiptDate: '{datetime_received}', Date_Due: '{datetime_due}'")
+        
         self.result = {
             'ProjectName': project,
             'LabReceiptDate': datetime_received,
@@ -411,5 +422,6 @@ class NewLoginDialog:
         }
         
         self.dialog.destroy()
+        
         if self.callback:
             self.callback(self.result)

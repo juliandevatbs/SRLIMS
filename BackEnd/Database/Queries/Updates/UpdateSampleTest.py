@@ -76,7 +76,7 @@ class UpdateSampleTest:
             
             # Construir la query de forma segura
             query = f"""
-                UPDATE SampleTests 
+                UPDATE Sample_Tests 
                 SET [{field_name}] = ? 
                 WHERE SampleTestsID = ?
             """
@@ -130,7 +130,7 @@ class UpdateSampleTest:
             values.append(sample_tests_id)  # Para el WHERE
             
             query = f"""
-                UPDATE SampleTests 
+                UPDATE Sample_Tests 
                 SET {', '.join(set_clauses)}
                 WHERE SampleTestsID = ?
             """

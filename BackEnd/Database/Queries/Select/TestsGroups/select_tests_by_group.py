@@ -61,7 +61,7 @@ class SelectTestsByGroup:
                 t.LCS_Limit_Low,
                 t.LCS_LimitUpper,
                 t.TagMb,
-                t.TagLcs,
+                t.tagLcs,
                 t.TagLcsd,
                 t.TagMs,
                 t.TagLabDup,

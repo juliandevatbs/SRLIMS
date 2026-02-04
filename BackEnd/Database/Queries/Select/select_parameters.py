@@ -10,10 +10,41 @@ def select_parameters(batch_id: int, batches_filtered: list, samples_ids=None, a
         cursor = connection.cursor()
         
         base_query = """
-            SELECT ST.SampleTestsID, ST.ClientSampleID, ST.LabAnalysisRefMethodID, ST.LabSampleID, ST.AnalyteName, 
-            ST.Result, ST.ResultUnits, ST.DetectionLimit, ST.Dilution, ST.ReportingLimit, 
-            ST.ProjectName, ST.DateCollected, ST.MatrixID, ST.QCType, ST.LabReportingBatchID, 
-            ST.Notes, S.Sampler, ST.Analyst 
+            SELECT
+                ST.SampleTestsID,
+                ST.ClientSampleID,
+                ST.LabAnalysisRefMethodID,
+                ST.LabSampleID,
+                ST.AnalyteName,
+                ST.Result,
+                ST.ResultUnits,
+                ST.LabQualifiers,
+                ST.DetectionLimit,
+                ST.AnalyteType,
+                ST.Dilution,
+                ST.PercentMoisture,
+                ST.PercentRecovery,
+                ST.RelativePercentDifference,
+                ST.QCSpikeAdded,
+                ST.ReportingLimit,
+                ST.ProjectName,
+                ST.DateCollected,
+                ST.MatrixID,
+                ST.QCType,
+                ST.LabReportingBatchID,
+                ST.Notes,
+                ST.RP1,
+                ST.RP2,
+                ST.RP3,
+                S.Sampler,
+                ST.Analyst,
+                ST.TagMB,
+                ST.tagLcs,
+                ST.TagLCSD,
+                ST.tagMs,
+                ST.TagLabDup,
+                ST.TagSurr,
+                ST.TagParentSample
             FROM Sample_Tests AS ST
             INNER JOIN Samples AS S ON ST.LabSampleID = S.LabSampleID 
                 AND ST.LabReportingBatchID

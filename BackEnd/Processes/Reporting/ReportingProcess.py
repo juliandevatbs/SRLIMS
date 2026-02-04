@@ -1,14 +1,14 @@
+from BackEnd.Database.Queries.Insert.Reports.insert_historical import InsertHistorical
 from BackEnd.Database.Queries.Select.Reports.MainCommand import MainCommand
 
 
 class ReportingProcess:
 
 
-    def __init__(self, lab_reporting_batch_id):
+    def __init__(self):
 
         self.getter_data_instance = MainCommand()
 
-        self.lab_reporting_batch_id = lab_reporting_batch_id
 
         self.initial_data = None
 
@@ -42,6 +42,24 @@ class ReportingProcess:
 
 
         return
+    
+    def insert_historical_record(self, historical_data):
+
+        try:
+
+            instance_db = InsertHistorical()
+
+            instance_db.load_connection()
+
+            instance_db.insert_historical_record(historical_data)
+
+        except Exception as e:
+
+            print(f"Error inserting historical record: {e}")
+
+        finally:
+
+            instance_db.close_conn()
 
 
 

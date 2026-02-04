@@ -14,6 +14,7 @@ from BackEnd.Database.Queries.Select.select_analyte_names import select_analyte_
 from BackEnd.Database.Queries.Select.select_analyte_groups import select_analyte_groups
 from BackEnd.Database.Queries.Filters.filter_queries import filter_queries
 from BackEnd.Processes.DataFormatters.data_formatter import tuple_to_readable, data_formatter
+from BackEnd.Processes.Email.email_async import send_login_email_async
 from FrontEnd.Views.SampleWizard.NewLoginDialog import NewLoginDialog
 
 
@@ -92,24 +93,45 @@ class FilterManager:
         
     
     def _on_new_login_created(self, login_data):
-        
         if not login_data:
-            
             return
+        
+        email = "delivery.consultant12@advancedtbs.com"
+        project_name = login_data.get('ProjectName', '').strip()
+        
+        print(f"Email: '{email}', Project: '{project_name}'")
         
         self.status_callback("Creating new login....")
         
-        
         def worker():
-            
             try:
-                
                 new_wo = self.create_login_sample_instance.create_login_and_sample(login_data)
+                
+                print(f"Login created. WO: {new_wo}")
+                
+                if new_wo and email and project_name:
+                    print(f"Sending email to: {email}")
+                    try:
+                        send_login_email_async(
+                            email=email,
+                            project_name=project_name,
+                            work_order=str(new_wo)
+                        )
+                        print("Email sent")
+                    except Exception as email_error:
+                        print(f"Email error: {email_error}")
+                        import traceback
+                        traceback.print_exc()
+                else:
+                    print(f"Email skipped - WO: {new_wo}, Email: '{email}', Project: '{project_name}'")
+                
                 self.parent.after(0, lambda: self._on_login_created_success(new_wo))
             
             except Exception as e:
-                
-                self.parent.after(0, lambda: self.status_callback(f"Error: " , True))
+                print(f"Worker error: {e}")
+                import traceback
+                traceback.print_exc()
+                self.parent.after(0, lambda: self.status_callback(f"Error creating login: {e}", error=True))
         
         threading.Thread(target=worker, daemon=True).start()
         
@@ -117,11 +139,12 @@ class FilterManager:
         
         self.status_callback(f"Login created succesfully! Work Order: {new_wo}")
         
+        
         # Reload work orders
         self.load_work_orders()
         
         #Selecte the new wo 
-        self.parent.after(1000, lambda: self._select_new_wo(str(new_wo)))
+        #self.parent.after(1000, lambda: self._select_new_wo(str(new_wo)))
     
     def open_new_login_dialog(self):
         

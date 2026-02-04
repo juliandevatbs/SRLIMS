@@ -95,7 +95,8 @@ class SelectDataByWo:
                                 ST.LabReportingBatchID,
                                 ST.Notes,
                                 S.Sampler,
-                                ST.Analyst
+                                ST.Analyst,
+        
                             FROM Sample_Tests ST
                             LEFT JOIN Samples S
                             ON ST.LabReportingBatchID = S.LabReportingBatchID

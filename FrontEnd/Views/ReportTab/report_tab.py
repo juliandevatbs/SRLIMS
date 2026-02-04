@@ -16,6 +16,8 @@ from BackEnd.Database.Queries.Updates.UpdateSample import UpdateSample
 from BackEnd.Database.Queries.Updates.UpdateSampleTest import UpdateSampleTest
 from BackEnd.Processes.Adapt.generate_adapt_export import GenerateAdaptExport
 from BackEnd.Processes.DataFormatters.data_formatter import data_formatter
+from BackEnd.Processes.Formulation.lcs_qc_spike_added import lcs_qc_spike_added
+from BackEnd.Processes.Formulation.ms_msd_calculus import ms_msd_calculus
 from FrontEnd.Views.ReportTab.EditableTreeView import EditableTreeview
 from FrontEnd.Views.ReportTab.table_manager import TableManager
 from FrontEnd.Views.ReportTab.filter_manager import FilterManager
@@ -26,6 +28,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 
 class ReportTab(ttk.Frame):
+    
     def __init__(self, parent, auto_load=False):
         super().__init__(parent)
         self.root = parent
@@ -99,7 +102,8 @@ class ReportTab(ttk.Frame):
         }
 
         table2_columns = {
-            'Include': col(50, tk.CENTER, 'Include'),
+            
+            'Include': col(50, tk.CENTER, 'Include'),         
             'SampleTestsID': col(150, tk.CENTER, 'SampleTestsID'),
             'ClientSampleID': col(200, tk.CENTER, 'ClientSampleID'),
             'LabAnalysisRefMethodID': col(300, tk.CENTER, 'LabAnalysisRefMethodID'),
@@ -107,17 +111,35 @@ class ReportTab(ttk.Frame):
             'AnalyteName': col(250, tk.CENTER, 'AnalyteName'),
             'Result': col(150, tk.CENTER, 'Result'),
             'ResultUnits': col(150, tk.CENTER, 'ResultUnits'),
+            'LabQualifiers': col(150, tk.CENTER, 'LabQualifiers'),
             'DetectionLimit': col(150, tk.CENTER, 'DetectionLimit'),
+            'AnalyteType': col(150, tk.CENTER, 'AnalyteType'),
             'Dilution': col(150, tk.CENTER, 'Dilution'),
+            'PercentMoisture': col(150, tk.CENTER, 'PercentMoisture'),
+            'PercentRecovery': col(150, tk.CENTER, 'PercentRecovery'),
+            'RelativePercentDifference': col(150, tk.CENTER, 'RelativePercentDifference'),
+            'QCSpikeAdded': col(120, tk.CENTER, 'QCSpikeAdded'),
             'ReportingLimit': col(150, tk.CENTER, 'ReportingLimit'),
             'ProjectName': col(150, tk.CENTER, 'ProjectName'),
             'DateCollected': col(200, tk.CENTER, 'DateCollected'),
             'MatrixID': col(150, tk.CENTER, 'MatrixID'),
+            'QCType': col(150, tk.CENTER, 'QCType'),
             'AnalyteType': col(150, tk.CENTER, 'AnalyteType'),
             'LabReportingBatchID': col(200, tk.CENTER, 'LabReportingBatchID'),
             'Notes': col(200, tk.CENTER, 'Notes', s=True),
-            'Sampler': col(200, tk.CENTER, 'Sampler'),
-            'Analyst': col(200, tk.CENTER, 'Analyst'),
+            'RP1': col(100, tk.CENTER, 'RP1'),
+            'RP2': col(100, tk.CENTER, 'RP2'),
+            'RP3': col(100, tk.CENTER, 'RP3'),
+            'Sampler': col(150, tk.CENTER, 'Sampler'),
+            'Analyst': col(150, tk.CENTER, 'Analyst'),
+            'TagMB': col(50, tk.CENTER, 'TagMB'),
+            'tagLcs': col(50, tk.CENTER, 'tagLcs'),
+            'TagLCSD': col(50, tk.CENTER, 'TagLCSD'),
+            'tagMs': col(50, tk.CENTER, 'TagMS'),
+            'TagLabDup': col(50, tk.CENTER, 'TagLabDup'),
+            'TagSurr': col(50, tk.CENTER, 'TagSurr'),
+            'TagParentSample': col(50, tk.CENTER, 'TagParentSample')
+            
         }
 
         t1_frame, self.table1 = self.table_manager.create_table(notebook, 'table1', table1_columns)
@@ -132,6 +154,7 @@ class ReportTab(ttk.Frame):
         self._setup_editable_tables()
 
     def _setup_editable_tables(self):
+        
         """
         Configura las tablas como editables
         Llamar después de crear las tablas en _setup_tables()
@@ -390,7 +413,7 @@ class ReportTab(ttk.Frame):
             self.update_status("Error: Please select a work order first", error=True)
             
         
-        self.update_status(f"Generating adapt for wo {wo_value}")
+        self.update_status(f"Generating report for wo {wo_value}")
         
         
         threading.Thread(
@@ -847,44 +870,178 @@ class ReportTab(ttk.Frame):
             traceback.print_exc()
             self.update_status(f"Error: {e}", error=True)
             self._revert_cell_value(self.table1, item_id, column, old_value)
+            
+    
+    def caller_percent_recovery_calc(self, new_value, spike_value):
+        
+        try:
+            
+            
+            result =  lcs_qc_spike_added(new_value, spike_value)
+            
+            return result
+        
+        except Exception as e:
+            
+            print("The calculation could not be performed")
+            
+            self.update_status("The calculation could not be performed", error=True)
+            
+            
+            
+    
+    def _find_parent_sample(self):
+        """
+        Busca el parent sample marcado con Include en table2
+        
+        Returns:
+            dict: Datos del parent sample con las claves:
+                - sample_tests_id
+                - result
+                - qualifiers
+                - detection_limit
+            None: Si no se encuentra parent sample marcado
+        """
+        columns = self.table2['columns']
+        
+        for child in self.table2.get_children():
+            row_values = self.table2.item(child, 'values')
+            include_value = row_values[0]  # Columna Include
+            
+            # Verificar si está marcado como Include
+            if include_value == self.table_manager.CHECK_ON:
+                try:
+                    # Extraer datos necesarios
+                    result_idx = columns.index('Result')
+                    qualifiers_idx = columns.index('LabQualifiers')
+                    dl_idx = columns.index('DetectionLimit')
+                    id_idx = columns.index('SampleTestsID')
+                    
+                    return {
+                        'sample_tests_id': row_values[id_idx],
+                        'result': row_values[result_idx],
+                        'qualifiers': row_values[qualifiers_idx],
+                        'detection_limit': row_values[dl_idx]
+                    }
+                except (ValueError, IndexError) as e:
+                    print(f"Error extracting parent data: {e}")
+                    return None
+        
+        return None
+        
 
 
     def _on_table2_edit(self, item_id, column, old_value, new_value):
-        """
-        Callback cuando se edita una celda en table2 (Sample Tests)
-        
-        Args:
-            item_id: ID del item en el Treeview
-            column: Nombre de la columna editada
-            old_value: Valor anterior
-            new_value: Valor nuevo
-        """
         try:
-            # Obtener todos los valores del registro
             values = self.table2.item(item_id, 'values')
-            
-            # Estructura de columnas en table2:
-            # [0]=Include, [1]=SampleTestsID, [2]=ClientSampleID...
-            sample_tests_id = values[1]  # SampleTestsID
+            sample_tests_id = values[1]
             
             print(f"[EDIT] SampleTest ID: {sample_tests_id}")
             print(f"       Campo: {column}")
             print(f"       {old_value} -> {new_value}")
             
-            # Validar el campo
             if not self._validate_sample_test_field(column, new_value):
                 self.update_status(f"Error: Invalid value for {column}", error=True)
                 self._revert_cell_value(self.table2, item_id, column, old_value)
                 return
             
-            # Actualizar en la base de datos usando SampleTestsID
+            if column == 'Result':
+                columns = self.table2['columns']
+                values_list = list(values)
+                
+                def get_col(col_name):
+                    try:
+                        col_idx = columns.index(col_name)
+                        return values_list[col_idx]
+                    except (ValueError, IndexError):
+                        return None
+                
+                # === CÁLCULO LCS ===
+                tag_lcs = get_col('tagLcs')
+                is_lcs = (tag_lcs == self.table_manager.CHECK_ON)
+                
+                if is_lcs:
+                    print("LCS MODIFICADO, CALCULANDO PERCENT RECOVERY")
+                    qc_spike = get_col('QCSpikeAdded')
+                    try:
+                        percent_recovery = self.caller_percent_recovery_calc(new_value, qc_spike)
+                        recovery_updated = self.update_sample_test.update_field(
+                            sample_tests_id,
+                            'PercentRecovery',
+                            percent_recovery
+                        )
+                        if recovery_updated:
+                            self.update_status(f"Percent Recovery auto-calculated {percent_recovery}")
+                    except Exception as calc_error:
+                        import traceback
+                        traceback.print_exc()
+                
+                # === CÁLCULO MS/MSD ===
+                tag_ms = get_col('tagMs')
+                tag_msd = get_col('TagLabDup')
+                is_ms_or_msd = (tag_ms == self.table_manager.CHECK_ON or tag_msd == self.table_manager.CHECK_ON)
+                
+                if is_ms_or_msd:
+                    print("MS/MSD MODIFICADO, CALCULANDO PERCENT RECOVERY")
+                    
+                    # Buscar parent sample (marcado con Include)
+                    parent_data = self._find_parent_sample()
+                    
+                    if not parent_data:
+                        self.update_status(
+                            "Please select the parent sample using the Include checkbox (☑) to calculate recovery",
+                            error=True
+                        )
+                        # Actualizar solo el Result, sin calcular recovery
+                        success = self.update_sample_test.update_field(sample_tests_id, column, new_value)
+                        if success:
+                            self.update_status(f"✓ Updated Result (Recovery pending parent sample selection)")
+                        return
+                    
+                    try:
+                        # Obtener QCSpikeAdded del MS/MSD actual
+                        qc_spike = get_col('QCSpikeAdded')
+                        
+                        # Llamar a la función externa de cálculo
+                        percent_recovery = ms_msd_calculus(
+                            result=new_value,
+                            parent_result=parent_data['result'],
+                            parent_qualifiers=parent_data['qualifiers'],
+                            parent_detection_limit=parent_data['detection_limit'],
+                            qc_spike=qc_spike
+                        )
+                        
+                        # Actualizar en BD
+                        recovery_updated = self.update_sample_test.update_field(
+                            sample_tests_id,
+                            'PercentRecovery',
+                            percent_recovery
+                        )
+                        
+                        if recovery_updated:
+                            parent_id = parent_data['sample_tests_id']
+                            self.update_status(
+                                f"MS/MSD Recovery calculated: {percent_recovery}% (using parent: {parent_id})"
+                            )
+                        else:
+                            print(f"[AUTO-CALC] Failed to update PercentRecovery")
+                            
+                    except ValueError as ve:
+                        # Errores de validación desde ms_msd_calculus
+                        self.update_status(f"Error calculating MS/MSD: {ve}", error=True)
+                    except Exception as calc_error:
+                        import traceback
+                        traceback.print_exc()
+                        self.update_status(f"Error in MS/MSD calculation", error=True)
+            
+            # Actualizar en BD
             success = self.update_sample_test.update_field(sample_tests_id, column, new_value)
             
             if success:
-                self.update_status(f"✓ Updated {column} for Test {sample_tests_id}")
+                if column != 'Result' or not (is_lcs or is_ms_or_msd):
+                    self.update_status(f"✓ Updated {column} for Test {sample_tests_id}")
                 self._on_data_edited()
             else:
-                # Si falla, revertir el cambio
                 self.update_status(f"Failed to update {column}", error=True)
                 self._revert_cell_value(self.table2, item_id, column, old_value)
                 
@@ -1019,77 +1176,114 @@ class ReportTab(ttk.Frame):
         self.data_loader.load_data_async(batch_id, filters, on_data_loaded)
 
 
-    # This methods inserts the data that comes
     def _populate_tables(self, samples, tests):
-
         try:
-
             # Clean tables
-
             for child in self.table1.get_children():
-
                 self.table1.delete(child)
 
             for child in self.table2.get_children():
-
                 self.table2.delete(child)
 
             # Insert sample data
             for row in samples:
-
                 try:
-
                     if isinstance(row, (list, tuple)):
-
                         values = ('☐',) + tuple(row)
-
                     elif isinstance(row, dict):
-
                         values = ('☐',) + tuple(row.values())
 
                     self.table1.insert('', 'end', values=values)
 
                 except Exception as e:
-
                     print(f"Error inserting sample: {e}")
 
-            # Insert sample tests
-            for row in tests:
-
+            # Insert test data - CORRECTED WITH DEBUG
+            for row_idx, row in enumerate(tests):
                 try:
+                    values = list(row)
+                    columns = self.table2['columns']
+                    
+                    # DEBUG: Solo para la primera fila
+                    if row_idx == 0:
+                        print(f"\n=== DEBUG PRIMERA FILA ===")
+                        print(f"Total columnas en Treeview: {len(columns)}")
+                        print(f"Total valores de BD: {len(values)}")
+                        print(f"Columnas TAG encontradas:")
 
-                    if isinstance(row, (list, tuple)):
+                    # Convertir TODAS las columnas TAG
+                    for i, col in enumerate(columns):
+                        if col in self.table_manager.TAG_COLUMNS:
+                            value_index = i - 1  # Restar 1 por la columna 'Include'
+                            
+                            # DEBUG: Solo para la primera fila
+                            if row_idx == 0:
+                                print(f"  - {col}: posición en columns={i}, posición en values={value_index}")
+                            
+                            if 0 <= value_index < len(values):
+                                # Convertir el valor a checkbox
+                                original_value = values[value_index]
+                                values[value_index] = (
+                                    self.table_manager.CHECK_ON if values[value_index]
+                                    else self.table_manager.CHECK_OFF
+                                )
+                                
+                                # DEBUG: Solo primera fila
+                                if row_idx == 0:
+                                    print(f"    Valor original: {original_value} → {values[value_index]}")
+                            else:
+                                # Si el índice está fuera de rango, poner checkbox vacío
+                                if row_idx == 0:
+                                    print(f"    ⚠️ FUERA DE RANGO! Poniendo valor por defecto")
+                                # Esto no debería pasar, pero por si acaso
+                                if value_index == len(values):
+                                    values.append(self.table_manager.CHECK_OFF)
 
-                        values=('☐',) + tuple(row)
-
-                    elif isinstance(row, dict):
-
-                        values=('☐',) + tuple(row.values())
-
-                    self.table2.insert('', 'end', values=values)
+                    self.table2.insert('', 'end', values=('☐',) + tuple(values))
 
                 except Exception as e:
-                    print(f"Error inserting test: {e}")
+                    print(f"Error inserting test row {row_idx}: {e}")
+                    import traceback
+                    traceback.print_exc()
 
             # Update status
             self.data_loaded = True
-
             self.update_status(f"Loaded {len(samples)} samples and {len(tests)} tests")
 
         except Exception as e:
             self.update_status(f"Error populating tables: {e}", error=True)
         finally:
             self._set_load_done()
-
     def _set_load_done(self):
         self._load_in_progress = False
         self._load_completed = True
 
     def _on_table_click(self, event, table_name):
+        
         result = self.table_manager.handle_checkbox_click(event, table_name)
-        if result:
+        
+        if isinstance(result, dict):
+            
+            self.update_sample_test.update_field(
+                
+                result["SampleTestsID"],
+                
+                result["column"],
+                
+                result["value"]
+                
+            )
+            
+            self.update_status(f"{result['column']} updated")
+            
+        elif result:
+            
             lab_sample_id, action = result
+            
             self.update_status(f"Sample {action}: {lab_sample_id}")
+        
+        
+        
 
     """def _setup_action_buttons(self):
         frame = ttk.Frame(self)

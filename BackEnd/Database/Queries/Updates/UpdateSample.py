@@ -45,7 +45,7 @@ class UpdateSample:
                 'ReceiptComments', 'LocationCode', 'LabReceiptDate',
                 'AdaptMatrixID', 'ProgramType', 'CollectionMethod',
                 'SamplingDepth', 'LoctionCode', 'ProjectNumber', 'LabID',
-                'Include', 'TagParentSample', 'TagMB', 'TagLCS', 'TagLCSD',
+                'Include', 'TagParentSample', 'TagMB', 'tagLcs', 'TagLCSD',
                 'TagMS', 'TagLabDup', 'PercentMositure', 'HoldCal',
                 'Sample Wgt', 'DateAnalyzed', 'QCSample', 'Test_Group', 'QCType', 'ItemID'
             ]

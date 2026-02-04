@@ -32,6 +32,7 @@ class FirstPageQuery:
             FROM Samples S
             WHERE S.LabReportingBatchID = ?
             AND QCSample = 0
+            AND ClientSampleID NOT LIKE '%Trip Blank%'
             ORDER BY S.ItemID;
 
             """

@@ -3,16 +3,7 @@ from BackEnd.Database.General.get_connection import DatabaseConnection
 
 def insert_mb_tests(data_to_create: dict) -> bool:
     """
-    Clona una muestra existente y la convierte en un QC (Method Blank)
-    
-    Args:
-        data_to_create: dict con las claves:
-            - inc_lab_sample_id: Nuevo LabSampleID para el QC
-            - client_sample_id: Nuevo ClientSampleID para el QC
-            - lab_sample_id_orig: LabSampleID original a clonar
-    
-    Returns:
-        bool: True if insert correctly
+    COPIA TODOS los analitos de la muestra original como MB
     """
     connection = None
     cursor = None
@@ -20,80 +11,57 @@ def insert_mb_tests(data_to_create: dict) -> bool:
     try:
         instance_db = DatabaseConnection()
         connection = DatabaseConnection.get_conn(instance_db)
-    
-        if connection is None:
-            print("Error: No database connection")
-            return False
-        
         cursor = connection.cursor()
         
-        # Query with params
-        # Query with params
         query = """
-        INSERT INTO dbo.Sample_Tests (
-        ItemID,
-        ClientSampleID,
-        LabAnalysisRefMethodID,
-        LabSampleID,
-        LabID,
-        AnalyteName,
-        AnalysisType,
-        ReportableResult,
-        TotalOrDissolved,
-        PrepBatchID,
-        MethodBatchID,
-        PreservationIntact,
-        LabReportingBatchID, 
-        GroupLongName,
-        TagMB,
-        Preservative
-    )
-    VALUES (
-        (SELECT MAX(ItemID) + 1 
-         FROM dbo.Sample_Tests 
-         WHERE LabReportingBatchID = ?),
-        ?,    -- ClientSampleID
-        ?,    -- LabAnalysisRefMethodID
-        ?,    -- LabSampleID
-        'E83484',
-        ?,    -- AnalyteName
-        'RES',
-        1,
-        'TOT',
-        'PB09222518',
-        'MB09222518',
-        1,
-        ?,    -- LabReportingBatchID
-        'Classical Chemistry Parameters',
-        1,
-        1
-    )
+        INSERT INTO Sample_Tests (
+            ItemID, ClientSampleID, LabAnalysisRefMethodID, LabSampleID,
+            LabID, AnalyteName, AnalyteType, ResultUnits, 
+            DetectionLimit, ReportingLimit, LabReportingBatchID,
+            GroupLongName, PreservationType,
+            QCType, TagMb, QCSpikeAdded, Result, PercentRecovery
+        )
+        SELECT 
+            (SELECT MAX(ItemID) + 1 FROM Sample_Tests 
+             WHERE LabReportingBatchID = ?),
+            ?,                          -- Nuevo ClientSampleID
+            st.LabAnalysisRefMethodID,  -- Copiar
+            ?,                          -- Nuevo LabSampleID
+            st.LabID,
+            st.AnalyteName,             -- ← Copia TODOS
+            st.AnalyteType,
+            st.ResultUnits,
+            st.DetectionLimit,
+            st.ReportingLimit,
+            ?,                          -- LabReportingBatchID
+            st.GroupLongName,
+            st.PreservationType,
+            'MB',   -- QCType
+            1,      -- TagMb
+            NULL,   -- QCSpikeAdded (MB no tiene)
+            NULL,   -- Result (usuario lo llena)
+            NULL    -- PercentRecovery (MB no calcula)
+        FROM Sample_Tests st
+        WHERE st.LabSampleID = ?  -- ← Muestra original
         """
-
-        print(f"SAMPLES PARA CREAR -> {data_to_create}")
-
-        # Ejecutar con parámetros
+        
         cursor.execute(query, (
-            data_to_create.get("work_order"),
-            data_to_create.get("ClientSampleID"),
-            data_to_create.get("LabAnalysisRefMethodID"),
-            data_to_create.get("LabSampleID"),
-            data_to_create.get("AnalyteName"),
-            data_to_create.get("LabReportingBatchID")
+            data_to_create["work_order"],
+            data_to_create["ClientSampleID"],
+            data_to_create["LabSampleID"],
+            data_to_create["LabReportingBatchID"],
+            data_to_create["lab_sample_id_orig"]
         ))
         
-        # Confirmar cambios
         connection.commit()
-        
-        print("MB Sample tests created")
+        print(f"✓ MB tests created (copied from {data_to_create['lab_sample_id_orig']})")
         return True
         
     except Exception as e:
-        print(f"Error inserting MB sample tests: {e}")
+        print(f"Error: {e}")
         if connection:
             connection.rollback()
         return False
-        
     finally:
         if cursor:
             cursor.close()

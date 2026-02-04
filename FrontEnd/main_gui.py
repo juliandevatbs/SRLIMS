@@ -19,6 +19,8 @@ from BackEnd.Server.server import run_flask
 from FrontEnd.Styles.config_styles import configure_styles
 from FrontEnd.Views.ReportTab.report_tab import ReportTab
 from FrontEnd.Views.import_tab import ImportTab
+from FrontEnd.Views.HistoricalTab.historical_tab import HistoricalTab
+
 
 
 class Main_Gui:
@@ -32,6 +34,7 @@ class Main_Gui:
         
         # Estilos externos
         self.style = ttk.Style()
+        
         configure_styles(self.style)
         
         
@@ -42,6 +45,7 @@ class Main_Gui:
         
         # Llamado a funciones 
         self.setup_window_properties()
+        
         self.setup_main_interface()
 
         self.start_flask_server()
@@ -50,10 +54,12 @@ class Main_Gui:
         
         
         self.root.title("SRL")
+        
         self.root.state('zoomed')
         
         # Icono de la app
         BASE_DIR = Path(__file__).parent.resolve()
+        
         icon_path = BASE_DIR / "Assets" / "logos" / "LOGO_SRL_FINAL.ico"
         
         if icon_path.exists():
@@ -71,6 +77,7 @@ class Main_Gui:
         
         # Frame principal
         self.main_frame = ttk.Frame(self.root, style="Main.TFrame")
+        
         self.main_frame.pack(fill=tk.BOTH, expand=True) # Llenar pantalla
         
         # Encabezado 
@@ -79,6 +86,7 @@ class Main_Gui:
         
         # Tabs (Report e import)
         self.notebook = ttk.Notebook(self.main_frame, style="Custom.TNotebook")
+        
         self.notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=(0, 5))
         
         self.create_tabs()
@@ -88,8 +96,11 @@ class Main_Gui:
     def setup_header(self):
         
         header_frame = ttk.Frame(self.main_frame, style='Header.TFrame', height=60)
+        
         header_frame.pack(fill=tk.X, pady=(0,10), ipady=10)
+        
         header_frame.pack_propagate(False)
+        
         
         try:
             
@@ -121,15 +132,20 @@ class Main_Gui:
             
             self.create_placeholder_logo(header_frame)
             
-        title_label = ttk.Label(header_frame, text="App", style="Header.TLabel")
+        title_label = ttk.Label(header_frame, text="SRL", style="Header.TLabel")
+        
         title_label.pack(side=tk.LEFT)
+        
         ttk.Label(header_frame, text="", background=self.dark_color).pack(side=tk.LEFT, expand=True)
         
     def create_placeholder_logo(self, parent):
         
         placeholder = tk.PhotoImage(width=40, height=40)
+        
         logo_label = ttk.Label(parent, image=placeholder, background=self.dark_color)
+        
         logo_label.image = placeholder
+        
         logo_label.pack(side=tk.LEFT, padx=(15, 10))
         
     def create_tabs(self):
@@ -138,16 +154,26 @@ class Main_Gui:
         
         self.import_tab = ImportTab(self.notebook)
         
+        self.historical_tab = HistoricalTab(self.notebook, auto_load=True)
+        
         self.notebook.add(self.report_tab, text="Report")
+        
         self.notebook.add(self.import_tab, text="Import")
         
+        self.notebook.add(self.historical_tab, text="Historical")
+        
     def safe_destroy(self):
+        
         for thread in self.db_thread_pool:
+            
             if thread.is_alive():
+                
                 pass  
 
         if self.root.winfo_exists():  
+            
             self.root.quit()  
+            
             self.root.destroy()
 
 
@@ -164,7 +190,9 @@ class Main_Gui:
 def main():
         
     root = tk.Tk()
+    
     app = Main_Gui(root)
+    
     instance_server = Main_Gui.start_flask_server(app)
         
     root.protocol("WM_DELETE_WINDOW", app.safe_destroy)

@@ -30,12 +30,23 @@ class GenerateAdaptExport:
             self.conn.close()
         
     def call_adapt_data(self):
+        
         try:
+            
             self.load_connection()
+            
             instance_command = SelectAdaptData(self.cursor, self.wo)
+            
+            self.clean_result = instance_command.clear_temp_table()
+            
+            self.insert_temp = instance_command.insert_adapt_data()
+            
             self.adapt_data = instance_command.select_adapt_data()
+            
             self.epp_data = instance_command.select_epp_data()
+            
             return True
+        
         except Exception as e:
             print(f"Error getting adapt data: {e}")
             import traceback

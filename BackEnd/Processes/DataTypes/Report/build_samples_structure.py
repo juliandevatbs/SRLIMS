@@ -18,7 +18,7 @@ def build_samples_structure(rows):
 
         samples[key]["sampleTests"].append({
             "analyteName": r.AnalyteName,
-            "results": r.Result,
+            "results": f"{r.Result}{r.LabQualifiers}" if (r.LabQualifiers and r.LabQualifiers.strip()) else r.Result,
             "units": r.ResultUnits,
             "df": r.Dilution,
             "mdl": r.DetectionLimit,
@@ -26,7 +26,8 @@ def build_samples_structure(rows):
             "method": r.LabAnalysisRefMethodID,
             "by": r.Analyst,
             "batch": r.MethodBatchID,
-            "note": r.Notes
+            "note": r.Notes,
+            "groupLongName": r.GroupLongName
         })
 
     return list(samples.values())

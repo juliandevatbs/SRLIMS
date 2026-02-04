@@ -32,13 +32,21 @@ class AnalyticalResultsQuery:
                 t.LabAnalysisRefMethodID,
                 t.Analyst,
                 t.MethodBatchID,
-                t.Notes
+                t.Notes,
+                t.GroupLongName,
+                t.LabQualifiers
 
                 FROM Sample_Tests t
-                JOIN Samples s ON s.LabSampleID = t.LabSampleID
-				AND s.LabReportingBatchID = t.LabReportingBatchID
-				AND s.QCSample = 0
+                JOIN Samples s
+                    ON s.LabSampleID = t.LabSampleID
+                AND s.LabReportingBatchID = t.LabReportingBatchID
+                AND s.QCSample = 0
                 WHERE t.LabReportingBatchID = ?
+                ORDER BY
+                    s.LabSampleID,
+                    t.GroupLongName,
+                    --t.Test_Group
+                    t.AnalyteName;
 
             """
 

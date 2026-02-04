@@ -79,10 +79,18 @@ class MainCommand:
             self.close_connection()
             
             project_data_dict = row_to_dicts(self.project_data, [
-            'ProjectName', 'Contact', 'Address_1', 'City', 
-            'State_Prov', 'Postal_Code', 'ProjectLocation', 
-            'Phone', 'ClientProjectNumber', 'LabReportingBatchID',
-            'LabReceiptDate'
+                    "Address_1",
+                    "City",
+                    "Client",
+                    "ClientProjectNumber",
+                    "Contact",
+                    "LabReceiptDate",
+                    "LabReportingBatchID",
+                    "Phone",
+                    "Postal_Code",
+                    "ProjectLocation",
+                    "ProjectName",
+                    "State_Prov"
             ])
         
             samples_data_dict = row_to_dicts(self.first_data, [
@@ -96,22 +104,37 @@ class MainCommand:
             
             
             qc_data_dict = row_to_dicts(self.quality_controls, [
-                'ClientSampleID',
-                'LabSampleID',
-                'DateCollected',
-                'Sampler',
-                'MatrixID',
-                'AnalyteName',
-                'Result',
-                'ResultUnits',
-                'Dilution',
-                'DetectionLimit',
-                'ReportingLimit',
-                'LabAnalysisRefMethodID',
-                'Analyst',
-                'MethodBatchID',
-                'Notes'
-            ])
+            'ClientSampleID',
+            'LabSampleID',
+            'DateCollected',
+            'DatePrepared',
+            'DateAnalyzed',
+            'Sampler',
+            'MatrixID',
+            'AnalyteName',
+            'Result',
+            'QCSpikeAdded',
+            'LabQualifiers',              
+            'ResultUnits',
+            'Dilution',
+            'DetectionLimit',
+            'ReportingLimit',
+            'LabAnalysisRefMethodID',
+            'Analyst',
+            'MethodBatchID',
+            'Notes',
+            'RelativePercentDifference', 
+            'PercentRecovery',
+            'src',
+            'Limites'
+        ])
+
+        for qc in qc_data_dict:
+            lab_qual = qc.get('LabQualifiers', '')
+            if lab_qual and lab_qual.strip():
+                qc['Result'] = f"{qc['Result']}{lab_qual}"
+            
+            qc.pop('LabQualifiers', None)  
 
 
             return {
